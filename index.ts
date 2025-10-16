@@ -27,6 +27,25 @@ app.get('/api/comments', async (req, res, next) => {
     }
 })
 
+app.get('/api/comments/query', async (req, res, next) => {
+    try {
+        const page = req.query.page == undefined ? '0' : req.query.page as string
+        const size = req.query.size == undefined ? '0' : req.query.size as string
+        const offset = parseInt(page) * parseInt(size)
+        const params = { size, offset }
+        const comments = await db.any(
+            'SELECT * FROM COMMENTS\
+            ORDER BY time ASC\
+            LIMIT ${size}\
+            OFFSET ${offset}', params)
+        res.send(comments)
+    }
+    catch (e) {
+        res.statusCode = 400
+        res.send('GET /api/comments failed')
+    }
+})
+
 app.post('/api/comments', async (req, res, next) => {
     const { username, comment } = req.body
     const params = { username, comment }
