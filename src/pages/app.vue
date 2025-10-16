@@ -32,17 +32,6 @@ interface comment {
 
 const comments = ref<comment[]>([])
 
-axios.get('/api/comments')
-	.then(function(response) {
-		comments.value = response.data
-		for (const c of comments.value) {
-			c.time = formatDate(new Date(c.time));
-		}
-	})
-	.catch(function(error) {})
-	.finally(function() {});
-
-
 const postData = {
 	username: 'villagerpro',
 	comment: '',
@@ -52,11 +41,17 @@ const newComment = ref('')
 
 async function submit() {
 	postData.comment = newComment.value
-	axios.post('/api/comments', postData)
-	.then(function(response) {})
-	.catch(function(error) {})
-	.finally(function() {});
+	const response = await axios.post('/api/comments', postData)
 }
+
+async function initpage() {
+	const response = await axios.get('/api/comments')
+	comments.value = response.data
+	for (const c of comments.value)
+		c.time = formatDate(new Date(c.time));
+}
+
+initpage()
 </script>
 
 <template>
