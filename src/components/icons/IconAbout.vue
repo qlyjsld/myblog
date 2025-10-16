@@ -1,3 +1,3 @@
 <template>
-    <a href="/about"><img src="/about.png"></img></a>
+    <a href="/about.html"><img src="/about.png"></img></a>
 </template>
