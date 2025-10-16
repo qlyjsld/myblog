@@ -33,7 +33,14 @@ app.post('/api/comments', async (req, res, next) => {
     try {
         const comments = await db.any(
             'INSERT INTO COMMENTS(username, comment)\
-            VALUES(${username}, ${comment})', params)
+            VALUES(${username}, ${comment});\
+            DELETE FROM COMMENTS\
+            WHERE id = (\
+                SELECT id FROM COMMENTS\
+                ORDER BY time ASC\
+                LIMIT 1\
+            )\
+            AND (SELECT COUNT(*) FROM COMMENTS) > 5;', params)
         res.send('POST /api/comments succeeded')
     }
     catch (e) {
