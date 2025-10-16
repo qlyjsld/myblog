@@ -28,12 +28,12 @@ app.get('/api/comments', async (req, res, next) => {
 })
 
 app.post('/api/comments', async (req, res, next) => {
-    const { userid, comment } = req.body
-    const params = { userid, comment }
+    const { username, comment } = req.body
+    const params = { username, comment }
     try {
         const comments = await db.any(
-            'INSERT INTO COMMENTS(userid, comment)\
-            VALUES(${userid}, ${comment})', params)
+            'INSERT INTO COMMENTS(username, comment)\
+            VALUES(${username}, ${comment})', params)
         res.send('POST /api/comments succeeded')
     }
     catch (e) {

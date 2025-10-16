@@ -1,11 +1,29 @@
 <script setup lang="ts">
 import SiteHeader from '../components/SiteHeader.vue'
 import SiteFooter from '../components/SiteFooter.vue'
+import { ref } from 'vue'
+
+import axios from 'axios';
+
+interface comment {
+	id: number;
+	username: string;
+	comment: string;
+	craeted_at: string;
+}
+
+const comments = ref<comment[]>([])
+
+axios.get('/api/comments')
+	.then(function(response) {
+		comments.value = response.data
+	})
+	.catch(function(error) {})
+	.finally(function() {});
 
 async function submit() {
 
 }
-
 </script>
 
 <template>
@@ -31,10 +49,18 @@ async function submit() {
     </p>
     </div>
 
-    <div class="comments">
-      <input placeholder="comments"></input>
+    <div class="submit">
+      <input placeholder="add a comment"></input>
       <button @click="submit">submit</button>
+	  <button>signin</button>
     </div>
+
+	<div class="comments">
+		<li class="comment" v-for="comment in comments">
+			<p class="username">{{ comment.username }}</p>
+			<p class="comment-content">{{ comment.comment }}</p>
+		</li>
+	</div>
 
     <footer class="site-footer"> <SiteFooter /> </footer>
   </body>
@@ -42,33 +68,68 @@ async function submit() {
 
 <style scoped>
 .blog {
-  border: 1px solid #b3ff00;
-  padding: 20px;
-  margin: 20px;
-  max-width: 768px;
-  width: 100%;
+	border: 1px solid #b3ff00;
+	padding: 20px;
+	margin: 20px;
+	max-width: 768px;
+	width: 100%;
 }
 
 .title {
-  text-align: left;
-  font-size: 32px;
-  font-style: italic;
-  max-width: 768px;
-  margin-bottom: 0px;
+	text-align: left;
+	font-size: 32px;
+	font-style: italic;
+	max-width: 768px;
+	margin-bottom: 0px;
 }
 
 .date {
-  text-align: left;
-  font-size: 24px;
-  font-style: italic;
-  max-width: 768px;
-  margin-top: 0px;
+	text-align: left;
+	font-size: 24px;
+	font-style: italic;
+	max-width: 768px;
+	margin-top: 0px;
 }
 
-.content{
-  text-align: left;
-  font-size: 24px;
-  font-weight: 300;
-  max-width: 768px;
+.content {
+	text-align: left;
+	font-size: 24px;
+	font-weight: 300;
+	max-width: 768px;
 }
+
+.submit {
+	margin: 30px;
+	white-space: nowrap;
+}
+
+.comments {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 60%;
+}
+
+.comment {
+	display: flex;
+	flex-direction: row;
+	border: 1px solid #b9ff9d;
+	padding: 10px;
+	margin: 5px;
+	max-width: 768px;
+	width: 100%;
+	justify-content: space-around;
+}
+
+.username {
+	text-align: left;
+	font-size: 16px;
+	font-style: italic;
+}
+
+.comment-content {
+	text-align: left;
+	font-size: 16px;
+}
+
 </style>
