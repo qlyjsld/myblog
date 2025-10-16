@@ -5,6 +5,13 @@ import { ref } from 'vue'
 
 import axios from 'axios';
 
+const loggedIn = ref(false)
+const username = ref('')
+const passwd = ref('')
+
+async function login() {
+}
+
 function formatDate(date: Date) {
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
@@ -75,13 +82,22 @@ async function submit() {
     </p>
     </div>
 
-    <div class="submit">
+    <div v-if="loggedIn" class="submit">
 		<form @submit.prevent="submit">
 		<input v-model="newComment" placeholder="add a comment"></input>
-		<button>submit</button>
+		<button class="submit-button">submit</button>
 		</form>
-		<button class="login-button">login</button>
     </div>
+
+	<div v-else class="login-wrapper">
+		<div class="login">
+			<form @submit.prevent="login">
+			<input class="username-input" v-model="username" placeholder="username"></input>
+			<input type="password" class="passwd-input" v-model="passwd" placeholder="passwd"></input>
+			<button class="login-button">login</button>
+			</form>
+		</div>
+	</div>
 
 	<div class="comments">
 		<li class="comment" v-for="comment in comments.slice().reverse()">
@@ -129,6 +145,30 @@ async function submit() {
 .submit {
 	margin: 30px;
 	white-space: nowrap;
+}
+
+.login-wrapper {
+	display: flex;
+	width: 100%;
+	max-width: 768px;
+	justify-content: end;
+}
+
+.login {
+	margin: 20px;
+	justify-self: start;;
+}
+
+.username-input {
+	margin: 5px;
+}
+
+.passwd-input {
+	margin: 5px;
+}
+
+.login-button {
+	margin: 5px;
 }
 
 .comments {
