@@ -5,11 +5,22 @@ import { ref } from 'vue'
 
 import axios from 'axios';
 
+function formatDate(date: Date) {
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const hours = date.getUTCHours();
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    const formattedHours = hours % 12 || 12;
+
+    return `${day} ${month} @ ${formattedHours}:${minutes}${ampm}`;
+}
+
 interface comment {
 	id: number;
 	username: string;
 	comment: string;
-	craeted_at: string;
+	time: string;
 }
 
 const comments = ref<comment[]>([])
@@ -17,12 +28,27 @@ const comments = ref<comment[]>([])
 axios.get('/api/comments')
 	.then(function(response) {
 		comments.value = response.data
+		for (const c of comments.value) {
+			c.time = formatDate(new Date(c.time));
+		}
 	})
 	.catch(function(error) {})
 	.finally(function() {});
 
-async function submit() {
 
+const postData = {
+	username: 'villagerpro',
+	comment: '',
+};
+
+const newComment = ref('')
+
+async function submit() {
+	postData.comment = newComment.value
+	axios.post('/api/comments', postData)
+	.then(function(response) {})
+	.catch(function(error) {})
+	.finally(function() {});
 }
 </script>
 
@@ -50,14 +76,16 @@ async function submit() {
     </div>
 
     <div class="submit">
-      <input placeholder="add a comment"></input>
-      <button @click="submit">submit</button>
-	  <button>signin</button>
+		<form @submit.prevent="submit">
+		<input v-model="newComment" placeholder="add a comment"></input>
+		<button>submit</button>
+		</form>
+		<button class="login-button">login</button>
     </div>
 
 	<div class="comments">
-		<li class="comment" v-for="comment in comments">
-			<p class="username">{{ comment.username }}</p>
+		<li class="comment" v-for="comment in comments.slice().reverse()">
+			<h3 class="username">{{ comment.username }} {{ comment.time }} </h3>
 			<p class="comment-content">{{ comment.comment }}</p>
 		</li>
 	</div>
@@ -107,29 +135,34 @@ async function submit() {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 60%;
+	max-width: 768px;
+	width: 100%;
 }
 
 .comment {
-	display: flex;
-	flex-direction: row;
-	border: 1px solid #b9ff9d;
+	border: 1px solid #ff79c7;
 	padding: 10px;
 	margin: 5px;
-	max-width: 768px;
 	width: 100%;
-	justify-content: space-around;
+	list-style-type: none; 
 }
 
 .username {
 	text-align: left;
 	font-size: 16px;
-	font-style: italic;
+	font-weight: 300;
+}
+
+.time {
+	text-align: left;
+	font-size: 16px;
+	font-weight: 300;
 }
 
 .comment-content {
 	text-align: left;
 	font-size: 16px;
+	font-weight: 300;
 }
 
 </style>
