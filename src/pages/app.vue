@@ -104,10 +104,10 @@ initpages()
 
 	<div v-else class="login-pages-wrapper">
 		<div class="login">
-			<form @submit.prevent="login">
-			<input type="text" class="username-input" required v-model="username"
+			<form @submit.prevent="login()">
+			<input type="text" class="username-input" v-model="username" required
 				placeholder="username"></input>
-			<input type="password" class="passwd-input" required v-model="passwd"
+			<input type="password" class="passwd-input" v-model="passwd" required
 				placeholder="passwd"></input>
 			<button class="login-button">login</button>
 			</form>
@@ -121,7 +121,7 @@ initpages()
 	</div>
 
 	<div class="comments">
-		<li class="comment" v-for="comment in comments.slice().reverse()">
+		<li class="comment" v-for="comment in comments.slice()">
 			<h3 class="username">{{ comment.username }} {{ comment.time }} </h3>
 			<p class="comment-content">{{ comment.comment }}</p>
 		</li>

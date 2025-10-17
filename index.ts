@@ -45,9 +45,9 @@ app.get('/api/comments/query', async (req, res, next) => {
         const params = { size, offset }
         const comments = await db.any(
             'SELECT * FROM COMMENTS\
-            ORDER BY time ASC\
-            LIMIT ${size}\
-            OFFSET ${offset}', params)
+            ORDER BY id DESC\
+            OFFSET ${offset}\
+            LIMIT ${size}', params)
         res.send(comments)
     }
     catch (e) {
