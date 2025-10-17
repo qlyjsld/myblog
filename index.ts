@@ -36,27 +36,27 @@ app.post('/api/login', async (req, res, next) => {
     }
     catch (e) {
         const err = e as Error
-        res.status(401).json({ error: err.message })
+        res.status(401).json({ message: err.message })
     }
 })
 
 app.get('/api/comments', async (req, res, next) => {
     try {
         const comments = await db.any('SELECT * FROM COMMENTS')
-        res.send(comments)
+        res.status(200).json(comments)
     }
     catch (e) {
-        res.send('GET /api/comments failed')
+        res.status(400).json({ message: 'GET /api/comments failed' })
     }
 })
 
 app.get('/api/comments/count', async (req, res, next) => {
     try {
         const count = await db.any('SELECT COUNT(*) FROM COMMENTS')
-        res.send(count)
+        res.status(200).json(count)
     }
     catch (e) {
-        res.send('GET /api/comments/count failed')
+        res.status(400).json({ message: 'GET /api/comments/count failed' })
     }
 })
 
@@ -71,11 +71,10 @@ app.get('/api/comments/query', async (req, res, next) => {
             ORDER BY id DESC\
             OFFSET ${offset}\
             LIMIT ${size}', params)
-        res.send(comments)
+        res.status(200).json(comments)
     }
     catch (e) {
-        res.statusCode = 400
-        res.send('GET /api/comments failed')
+        res.status(400).json({ message: 'GET /api/comments failed' })
     }
 })
 
@@ -86,10 +85,10 @@ app.post('/api/comments', async (req, res, next) => {
         const comments = await db.any(
             'INSERT INTO COMMENTS(username, comment)\
             VALUES(${username}, ${comment});', params)
-        res.send('POST /api/comments succeeded')
+        res.status(201).json({ message: 'POST /api/comments succeeded' })
     }
     catch (e) {
-        res.send('POST /api/comments failed')
+        res.status(400).json({ message: 'POST /api/comments failed' })
     }
 })
 
@@ -98,10 +97,10 @@ app.delete('/api/comments/:id', async (req, res, next) => {
     try {
         const comments = await db.none(
             'DELETE FROM COMMENTS WHERE id = ${id}', params)
-        res.send('DELETE /api/comments succeeded')
+        res.status(204).json({ message: 'DELETE /api/comments succeeded' })
     }
     catch (e) {
-        res.send('DELETE /api/comments failed')
+        res.status(400).json({ message: 'DELETE /api/comments failed' })
     }
 })
 
