@@ -44,13 +44,14 @@ const pages = ref<number[]>([])
 
 async function submit() {
 	const postData = { username: username.value, comment: newComment.value};
-	const response = await axios.post('/api/comments', postData)
+	const response = await axios.post('/api/comments', postData, {withCredentials: true})
 	newComment.value = ''
 	fetchpage(0)
 }
 
 async function initauth() {
-
+	const res = await axios.post('/api/auth', {withCredentials: true})
+	if (res.data.valid) loggedIn.value = true
 }
 
 initauth()

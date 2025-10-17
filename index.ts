@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { type NextFunction } from 'express'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
@@ -7,6 +7,7 @@ import pgPromise from 'pg-promise'
 import jwt from 'jsonwebtoken'
 import { createSecretKey } from 'crypto'
 import bcrypt from 'bcryptjs';
+import cookieParser from 'cookie-parser'
 
 const app = express()
 const port = 3000
@@ -17,9 +18,30 @@ const db = pgp('postgres://postgres:passwd@localhost:5432/myblog')
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const secret = 'm4b10g'
+const secretKey = createSecretKey(Buffer.from(secret))
+
 app.use(cors())
 app.use(express.static(join(__dirname, 'dist')))
 app.use(express.json())
+app.use(cookieParser())
+
+const auth = (req: any, res: any, next: NextFunction) => {
+    const token = req.cookies.access_token
+    if (!token) return res.status(401).json({ message: 'access_token missing' })
+
+    try {
+        const payload = jwt.verify(token, secretKey)
+        return next()
+    }
+    catch (e) {
+        res.status(401).json({ message: 'access_token invalid' })
+    }
+}
+
+app.post('/api/auth', auth, (req, res, next) => {
+    res.status(200).json({ valid: true })
+})
 
 app.post('/api/login', async (req, res, next) => {
     try {
@@ -30,9 +52,8 @@ app.post('/api/login', async (req, res, next) => {
         const valid = await bcrypt.compare(req.body.passwd, row[0].passwd)
         if (!valid) throw Error('incorrect')
 
-        const token = jwt.sign({ username: params.username },
-            createSecretKey(row[0].passwd), { expiresIn: '1h' })
-        res.status(200).json({ token: token })
+        const token = jwt.sign({ username: params.username }, secretKey, { expiresIn: '1h' })
+        res.cookie("access_token", token, { httpOnly: true }).status(200).json({ token: token })
     }
     catch (e) {
         const err = e as Error
@@ -78,7 +99,7 @@ app.get('/api/comments/query', async (req, res, next) => {
     }
 })
 
-app.post('/api/comments', async (req, res, next) => {
+app.post('/api/comments', auth, async (req, res, next) => {
     const { username, comment } = req.body
     const params = { username, comment }
     try {
@@ -92,7 +113,7 @@ app.post('/api/comments', async (req, res, next) => {
     }
 })
 
-app.delete('/api/comments/:id', async (req, res, next) => {
+app.delete('/api/comments/:id', auth, async (req, res, next) => {
     const params = { id: req.params.id }
     try {
         const comments = await db.none(
