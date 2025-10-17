@@ -33,20 +33,23 @@ interface comment {
 const comments = ref<comment[]>([])
 
 const postData = {
-	username: 'villagerpro',
+	username: '',
 	comment: '',
 };
 
 const newComment = ref('')
+const commentsCount = ref(0)
 
 async function submit() {
+	postData.username = username.value
 	postData.comment = newComment.value
 	const response = await axios.post('/api/comments', postData)
 }
 
 async function initpage() {
-	const response = await axios.get('/api/comments')
+	const response = await axios.get('/api/comments/query?page=0&size=3')
 	comments.value = response.data
+	commentsCount.value = await axios.get('/api/comments/count')
 	for (const c of comments.value)
 		c.time = formatDate(new Date(c.time));
 }
@@ -79,7 +82,7 @@ initpage()
 
     <div v-if="loggedIn" class="submit">
 		<form @submit.prevent="submit">
-		<input v-model="newComment" placeholder="add a comment"></input>
+		<input type="text" v-model="newComment" required placeholder="add a comment"></input>
 		<button class="submit-button">submit</button>
 		</form>
     </div>
@@ -87,8 +90,8 @@ initpage()
 	<div v-else class="login-wrapper">
 		<div class="login">
 			<form @submit.prevent="login">
-			<input class="username-input" v-model="username" placeholder="username"></input>
-			<input type="password" class="passwd-input" v-model="passwd" placeholder="passwd"></input>
+			<input type="text" class="username-input" required v-model="username" placeholder="username"></input>
+			<input type="password" class="passwd-input" required v-model="passwd" placeholder="passwd"></input>
 			<button class="login-button">login</button>
 			</form>
 		</div>
@@ -199,5 +202,4 @@ initpage()
 	font-size: 16px;
 	font-weight: 300;
 }
-
 </style>

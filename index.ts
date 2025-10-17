@@ -27,6 +27,16 @@ app.get('/api/comments', async (req, res, next) => {
     }
 })
 
+app.get('/api/comments/count', async (req, res, next) => {
+    try {
+        const count = await db.any('SELECT COUNT(*) FROM COMMENTS')
+        res.send(count)
+    }
+    catch (e) {
+        res.send('GET /api/comments/count failed')
+    }
+})
+
 app.get('/api/comments/query', async (req, res, next) => {
     try {
         const page = req.query.page == undefined ? '0' : req.query.page as string
