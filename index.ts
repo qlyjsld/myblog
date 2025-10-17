@@ -6,6 +6,7 @@ import pgPromise from 'pg-promise'
 
 import jwt from 'jsonwebtoken'
 import { createSecretKey } from 'crypto'
+import bcrypt from 'bcryptjs';
 
 const app = express()
 const port = 3000
@@ -22,14 +23,19 @@ app.use(express.json())
 
 app.post('/api/login', async (req, res, next) => {
     try {
-        const params = { username: req.body.username, passwd: req.body.passwd }
-        const valid = await db.any('SELECT * FROM users\
-            WHERE username = ${username} AND passwd = ${passwd}', params)
+        const params = { username: req.body.username }
+        const row = await db.any('SELECT * FROM users WHERE username = ${username}', params)
+        if (row.length != 1) throw Error('incorrect')
+
+        const invalid = await bcrypt.compare(req.body.passwd, row[0].passwd)
+        if (invalid) throw Error('incorrect')
+
         const token = jwt.sign({ username: params.username },
-            createSecretKey(params.passwd), { expiresIn: '1h' })
+            createSecretKey(row[0].passwd), { expiresIn: '1h' })
         res.send(token)
     }
     catch (e) {
+        res.statusCode = 401
         res.send('POST /api/login failed')
     }
 })
