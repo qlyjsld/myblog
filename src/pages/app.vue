@@ -96,7 +96,8 @@ initpages()
 
     <div v-if="loggedIn" class="submit">
 		<form @submit.prevent="submit">
-		<input type="text" v-model="newComment" required placeholder="add a comment"></input>
+		<input type="text" v-model="newComment" required
+			placeholder="add a comment"></input>
 		<button class="submit-button">submit</button>
 		</form>
     </div>
@@ -104,8 +105,10 @@ initpages()
 	<div v-else class="login-pages-wrapper">
 		<div class="login">
 			<form @submit.prevent="login">
-			<input type="text" class="username-input" required v-model="username" placeholder="username"></input>
-			<input type="password" class="passwd-input" required v-model="passwd" placeholder="passwd"></input>
+			<input type="text" class="username-input" required v-model="username"
+				placeholder="username"></input>
+			<input type="password" class="passwd-input" required v-model="passwd"
+				placeholder="passwd"></input>
 			<button class="login-button">login</button>
 			</form>
 		</div>
