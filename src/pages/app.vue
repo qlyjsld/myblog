@@ -130,9 +130,9 @@ async function deleteComment(id: number) {
     </div>
 
     <div v-if="loggedIn" class="submit">
-		<form @submit.prevent="submit">
-		<input type="text" v-model="newComment" required
-			placeholder="add a comment"></input>
+		<form class="textarea" @submit.prevent="submit">
+		<textarea v-model="newComment" required
+			placeholder="add a comment"></textarea>
 		<button class="submit-button">submit</button>
 		</form>
     </div>
@@ -204,6 +204,16 @@ async function deleteComment(id: number) {
 .submit {
 	margin: 30px;
 	white-space: nowrap;
+}
+
+.textarea {
+	display: flex;
+}
+
+.submit-button {
+	height: 50%;
+	align-self: center;
+	margin: 5px;
 }
 
 .login-pages-wrapper {
