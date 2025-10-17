@@ -38,7 +38,7 @@ const postData = {
 };
 
 const newComment = ref('')
-const commentsCount = ref(0)
+const pages = ref<number[]>([])
 
 async function submit() {
 	postData.username = username.value
@@ -46,15 +46,29 @@ async function submit() {
 	const response = await axios.post('/api/comments', postData)
 }
 
-async function initpage() {
-	const response = await axios.get('/api/comments/query?page=0&size=3')
-	comments.value = response.data
-	commentsCount.value = await axios.get('/api/comments/count')
+async function fetchpages(page: number) {
+	const getQuery = await axios.get('/api/comments/query',
+		{params: {page: page, size: 3}})
+	comments.value = getQuery.data
+
 	for (const c of comments.value)
 		c.time = formatDate(new Date(c.time));
 }
 
-initpage()
+async function initpages() {
+	const getQuery = await axios.get('/api/comments/query?page=0&size=3')
+	comments.value = getQuery.data
+
+	const getCount = await axios.get('/api/comments/count')
+	const commentsCount = getCount.data[0].count
+
+	for (let i = 1; i <= Math.ceil(commentsCount / 3); i++)
+		pages.value.push(i)
+	for (const c of comments.value)
+		c.time = formatDate(new Date(c.time));
+}
+
+initpages()
 </script>
 
 <template>
@@ -87,13 +101,19 @@ initpage()
 		</form>
     </div>
 
-	<div v-else class="login-wrapper">
+	<div v-else class="login-pages-wrapper">
 		<div class="login">
 			<form @submit.prevent="login">
 			<input type="text" class="username-input" required v-model="username" placeholder="username"></input>
 			<input type="password" class="passwd-input" required v-model="passwd" placeholder="passwd"></input>
 			<button class="login-button">login</button>
 			</form>
+		</div>
+	</div>
+
+	<div class="login-pages-wrapper">
+		<div class="pages-button" v-for="page in pages">
+			<button @click="fetchpages(page - 1)">{{page}}</button>
 		</div>
 	</div>
 
@@ -145,16 +165,15 @@ initpage()
 	white-space: nowrap;
 }
 
-.login-wrapper {
+.login-pages-wrapper {
 	display: flex;
 	width: 100%;
 	max-width: 768px;
 	justify-content: end;
 }
 
-.login {
-	margin: 20px;
-	justify-self: start;;
+.pages-button {
+	margin: 5px;
 }
 
 .username-input {
