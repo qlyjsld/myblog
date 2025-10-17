@@ -114,8 +114,15 @@ app.post('/api/comments', auth, async (req, res, next) => {
     }
 })
 
-app.delete('/api/comments/:id', auth, async (req, res, next) => {
+app.delete('/api/comments/:id', auth, async (req: any, res, next) => {
     const params = { id: req.params.id }
+
+    const comment = await db.any(
+        'SELECT * FROM COMMENTS WHERE id = ${id}', params)
+
+    if (req.payload.username != comment[0].username)
+        res.status(401).json({ message: 'invalid user' })
+
     try {
         const comments = await db.none(
             'DELETE FROM COMMENTS WHERE id = ${id}', params)

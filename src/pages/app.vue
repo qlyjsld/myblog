@@ -7,6 +7,7 @@ import axios from 'axios';
 
 const loggedIn = ref(false)
 const username = ref('')
+const usernameInput = ref('')
 const passwd = ref('')
 
 function usernameMatch(commentUsername: string) {
@@ -14,10 +15,11 @@ function usernameMatch(commentUsername: string) {
 }
 
 async function login() {
-	const postData = { username: username.value, passwd: passwd.value};
+	const postData = { username: usernameInput.value, passwd: passwd.value};
 	try {
 		const token = await axios.post('/api/login', postData);
 		loggedIn.value = true;
+		username.value = usernameInput.value
 	}
 	catch (e) {
 		console.log(e);
@@ -88,7 +90,7 @@ async function initpages() {
 initpages()
 
 async function deleteComment(id: number) {
-	const deleteReq = await axios.delete('/api/comments/' + id)
+	const deleteReq = await axios.delete('/api/comments/' + id, {withCredentials: true})
 	fetchpage(currentPage)
 }
 </script>
@@ -127,7 +129,7 @@ async function deleteComment(id: number) {
 	<div v-else class="login-pages-wrapper">
 		<div class="login">
 			<form @submit.prevent="login()">
-			<input type="text" class="username-input" v-model="username" required
+			<input type="text" class="username-input" v-model="usernameInput" required
 				placeholder="username"></input>
 			<input type="password" class="passwd-input" v-model="passwd" required
 				placeholder="passwd"></input>
