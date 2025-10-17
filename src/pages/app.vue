@@ -20,6 +20,13 @@ async function login() {
 	}
 }
 
+async function initauth() {
+	const res = await axios.post('/api/auth', {withCredentials: true})
+	if (res.data.valid) loggedIn.value = true
+}
+
+initauth()
+
 function formatDate(date: Date) {
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
@@ -41,6 +48,7 @@ interface comment {
 const comments = ref<comment[]>([])
 const newComment = ref('')
 const pages = ref<number[]>([])
+let currentPage = 0
 
 async function submit() {
 	const postData = { username: username.value, comment: newComment.value};
@@ -49,14 +57,8 @@ async function submit() {
 	fetchpage(0)
 }
 
-async function initauth() {
-	const res = await axios.post('/api/auth', {withCredentials: true})
-	if (res.data.valid) loggedIn.value = true
-}
-
-initauth()
-
 async function fetchpage(page: number) {
+	currentPage = page
 	const getQuery = await axios.get('/api/comments/query',
 		{params: {page: page, size: 3}})
 	comments.value = getQuery.data
@@ -79,6 +81,11 @@ async function initpages() {
 }
 
 initpages()
+
+async function deleteComment(id: number) {
+	const deleteReq = await axios.delete('/api/comments/' + id)
+	fetchpage(currentPage)
+}
 </script>
 
 <template>
@@ -132,7 +139,10 @@ initpages()
 
 	<div class="comments">
 		<li class="comment" v-for="comment in comments.slice()">
-			<h3 class="username">{{ comment.username }} {{ comment.time }} </h3>
+			<div class="comment-header">
+				<h3 class="username">{{ comment.username }} {{ comment.time }} </h3>
+				<button @click="deleteComment(comment.id)">x</button>
+			</div>
 			<p class="comment-content">{{ comment.comment }}</p>
 		</li>
 	</div>
@@ -217,10 +227,16 @@ initpages()
 	list-style-type: none; 
 }
 
+.comment-header {
+	display: flex;
+	justify-content: space-between;
+}
+
 .username {
 	text-align: left;
 	font-size: 16px;
 	font-weight: 300;
+	margin: 3px;
 }
 
 .time {
