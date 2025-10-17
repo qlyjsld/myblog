@@ -4,12 +4,22 @@ import SiteFooter from '../components/SiteFooter.vue'
 import { ref } from 'vue'
 
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
 
 const loggedIn = ref(false)
 const username = ref('')
 const passwd = ref('')
 
 async function login() {
+	passwd.value = await bcrypt.hash(passwd.value, 12)
+	const postData = { username: username.value, passwd: passwd.value};
+	try {
+		const token = await axios.post('/api/login', postData);
+		loggedIn.value = true;
+	}
+	catch (e) {
+		console.log(e);
+	}
 }
 
 function formatDate(date: Date) {
@@ -31,18 +41,11 @@ interface comment {
 }
 
 const comments = ref<comment[]>([])
-
-const postData = {
-	username: '',
-	comment: '',
-};
-
 const newComment = ref('')
 const pages = ref<number[]>([])
 
 async function submit() {
-	postData.username = username.value
-	postData.comment = newComment.value
+	const postData = { username: username.value, comment: newComment.value};
 	const response = await axios.post('/api/comments', postData)
 }
 

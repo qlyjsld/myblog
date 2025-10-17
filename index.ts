@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import pgPromise from 'pg-promise'
 
+import jwt from 'jsonwebtoken'
+import { createSecretKey } from 'crypto'
+
 const app = express()
 const port = 3000
 
@@ -16,6 +19,20 @@ const __dirname = dirname(__filename)
 app.use(cors())
 app.use(express.static(join(__dirname, 'dist')))
 app.use(express.json())
+
+app.post('/api/login', async (req, res, next) => {
+    try {
+        const params = { username: req.body.username, passwd: req.body.passwd }
+        const valid = await db.any('SELECT * FROM users\
+            WHERE username = ${username} AND passwd = ${passwd}', params)
+        const token = jwt.sign({ username: params.username },
+            createSecretKey(params.passwd), { expiresIn: '1h' })
+        res.send(token)
+    }
+    catch (e) {
+        res.send('POST /api/login failed')
+    }
+})
 
 app.get('/api/comments', async (req, res, next) => {
     try {
