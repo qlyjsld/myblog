@@ -56,11 +56,14 @@ const comments = ref<comment[]>([])
 const newComment = ref('')
 const pages = ref<number[]>([])
 let currentPage = 0
+let commentsCount = 0
 
 async function submit() {
 	const postData = { username: username.value, comment: newComment.value};
 	const response = await axios.post('/api/comments', postData, {withCredentials: true})
 	newComment.value = ''
+	commentsCount++
+	updatePages()
 	fetchpage(0)
 }
 
@@ -79,7 +82,7 @@ async function initpages() {
 	comments.value = getQuery.data
 
 	const getCount = await axios.get('/api/comments/count')
-	const commentsCount = getCount.data[0].count
+	commentsCount = getCount.data[0].count
 
 	for (let i = 1; i <= Math.ceil(commentsCount / 3); i++)
 		pages.value.push(i)
@@ -89,8 +92,16 @@ async function initpages() {
 
 initpages()
 
+function updatePages() {
+	pages.value = []
+	for (let i = 1; i <= Math.ceil(commentsCount / 3); i++)
+		pages.value.push(i)
+}
+
 async function deleteComment(id: number) {
 	const deleteReq = await axios.delete('/api/comments/' + id, {withCredentials: true})
+	commentsCount--
+	updatePages()
 	fetchpage(currentPage)
 }
 </script>
@@ -150,7 +161,7 @@ async function deleteComment(id: number) {
 				<h3 class="username">{{ comment.username }} {{ comment.time }} </h3>
 				<button v-if="usernameMatch(comment.username)" @click="deleteComment(comment.id)">x</button>
 			</div>
-			<p class="comment-content">{{ comment.comment }}</p>
+			<pre class="comment-content">{{ comment.comment }}</pre>
 		</li>
 	</div>
 
