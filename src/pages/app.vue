@@ -9,6 +9,10 @@ const loggedIn = ref(false)
 const username = ref('')
 const passwd = ref('')
 
+function usernameMatch(commentUsername: string) {
+	return username.value == commentUsername
+}
+
 async function login() {
 	const postData = { username: username.value, passwd: passwd.value};
 	try {
@@ -21,8 +25,9 @@ async function login() {
 }
 
 async function initauth() {
-	const res = await axios.post('/api/auth', {withCredentials: true})
-	if (res.data.valid) loggedIn.value = true
+	const payload: any = await axios.post('/api/auth', {withCredentials: true})
+	username.value = payload.data.username
+	if (username.value.length > 0) loggedIn.value = true
 }
 
 initauth()
@@ -141,7 +146,7 @@ async function deleteComment(id: number) {
 		<li class="comment" v-for="comment in comments.slice()">
 			<div class="comment-header">
 				<h3 class="username">{{ comment.username }} {{ comment.time }} </h3>
-				<button @click="deleteComment(comment.id)">x</button>
+				<button v-if="usernameMatch(comment.username)" @click="deleteComment(comment.id)">x</button>
 			</div>
 			<p class="comment-content">{{ comment.comment }}</p>
 		</li>

@@ -32,6 +32,7 @@ const auth = (req: any, res: any, next: NextFunction) => {
 
     try {
         const payload = jwt.verify(token, secretKey)
+        req.payload = payload
         return next()
     }
     catch (e) {
@@ -39,8 +40,8 @@ const auth = (req: any, res: any, next: NextFunction) => {
     }
 }
 
-app.post('/api/auth', auth, (req, res, next) => {
-    res.status(200).json({ valid: true })
+app.post('/api/auth', auth, (req: any, res, next) => {
+    res.status(200).json(req.payload)
 })
 
 app.post('/api/login', async (req, res, next) => {
