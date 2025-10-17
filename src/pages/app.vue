@@ -11,8 +11,7 @@ const username = ref('')
 const passwd = ref('')
 
 async function login() {
-	const hashedPasswd = await bcrypt.hash(passwd.value, 12)
-	const postData = { username: username.value, passwd: hashedPasswd};
+	const postData = { username: username.value, passwd: passwd.value};
 	try {
 		const token = await axios.post('/api/login', postData);
 		loggedIn.value = true;

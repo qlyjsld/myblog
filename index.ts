@@ -27,8 +27,8 @@ app.post('/api/login', async (req, res, next) => {
         const row = await db.any('SELECT * FROM users WHERE username = ${username}', params)
         if (row.length != 1) throw Error('incorrect')
 
-        const invalid = await bcrypt.compare(req.body.passwd, row[0].passwd)
-        if (invalid) throw Error('incorrect')
+        const valid = await bcrypt.compare(req.body.passwd, row[0].passwd)
+        if (!valid) throw Error('incorrect')
 
         const token = jwt.sign({ username: params.username },
             createSecretKey(row[0].passwd), { expiresIn: '1h' })
