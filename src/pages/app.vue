@@ -45,9 +45,17 @@ const pages = ref<number[]>([])
 async function submit() {
 	const postData = { username: username.value, comment: newComment.value};
 	const response = await axios.post('/api/comments', postData)
+	newComment.value = ''
+	fetchpage(0)
 }
 
-async function fetchpages(page: number) {
+async function initauth() {
+
+}
+
+initauth()
+
+async function fetchpage(page: number) {
 	const getQuery = await axios.get('/api/comments/query',
 		{params: {page: page, size: 3}})
 	comments.value = getQuery.data
@@ -117,7 +125,7 @@ initpages()
 
 	<div class="login-pages-wrapper">
 		<div class="pages-button" v-for="page in pages">
-			<button @click="fetchpages(page - 1)">{{page}}</button>
+			<button @click="fetchpage(page - 1)">{{page}}</button>
 		</div>
 	</div>
 
