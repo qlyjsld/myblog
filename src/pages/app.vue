@@ -4,7 +4,6 @@ import SiteFooter from '../components/SiteFooter.vue'
 import { ref } from 'vue'
 
 import axios from 'axios';
-import bcrypt from 'bcryptjs';
 
 const loggedIn = ref(false)
 const username = ref('')
