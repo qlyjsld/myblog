@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "server": "tsx watch .",
+    "build-server": "tsc -t esnext -m nodenext --esModuleInterop true --strict true index.ts",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
