@@ -277,5 +277,6 @@ async function deleteComment(id: number) {
 	text-align: left;
 	font-size: 16px;
 	font-weight: 300;
+	text-wrap: auto;
 }
 </style>
